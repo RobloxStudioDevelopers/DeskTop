@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таможенный Калькулятор Автомобилей</title>
+    <style>
+        /* Вставьте сюда CSS-код */
+        .calculator-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin: 10px 0 5px;
+        }
+        input[type="number"],
+        select, 
+        input[type="radio"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #resultContainer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Таможенный Калькулятор Автомобилей</h1>
+        <form id="customsCarCalculatorForm">
+            <label for="carType">Тип автомобиля:</label>
+            <select id="carType" name="carType">
+                <option value="1">Легковые</option>
+                <option value="2">Грузовые</option>
+                <option value="3">Электро</option>
+                <!-- Добавьте другие типы автомобилей здесь -->
+            </select>
+
+            <label>Тип двигателя:</label>
+            <label for="gasoline"><input type="radio" id="gasoline" name="engineType" value="1" checked> Бензиновый</label>
+            <label for="diesel"><input type="radio" id="diesel" name="engineType" value="2"> Дизельный</label>
+
+            <label for="engineVolume">Объем двигателя (куб.см.):</label>
+            <input type="number" id="engineVolume" name="engineVolume" required>
+
+            <label for="carYear">Год выпуска:</label>
+            <input type="number" id="carYear" name="carYear" required min="1900" max="2099" step="1">
+
+            <label for="carValue">Стоимость авто (EUR):</label>
+            <input type="number" id="carValue" name="carValue" required>
+
+            <button type="button" id="calculateButton">РАСЧЕТ</button>
+        </form>
+        <div id="resultContainer"></div>
+    </div>
+
+    <script>
+        document.getElementById('calculateButton').addEventListener('click', function() {
+            var carType = document.getElementById('carType').value;
+            var engineType = document.querySelector('input[name="engineType"]:checked').value;
+            var engineVolume = document.getElementById('engineVolume').value;
+            var carYear = document.getElementById('carYear').value;
+            var carValue = document.getElementById('carValue').value;
+
+            // Подготовка данных для отправки
+            var postData = {
+                carType: carType,
+                engineType: engineType,
+                engineVolume: engineVolume,
+                carYear: carYear,
+                carValue: carValue
+            };
+
+            // Отправка данных на сервер с помощью fetch
+            fetch('ВАШ_СЕРВЕР/calculate', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(postData)
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json(); // Предполагаем, что сервер возвращает JSON
+            })
+            .then(function(data) {
+                // Отображение результата
+                document.getElementById('resultContainer').innerHTML = 
+                'Таможенная пошлина: ' + data.customsDuty + '<br>' +
+                'Акциз: ' + data.excise + '<br>' +
+                'НДС: ' + data.vat;
+            })
+            .catch(function(error) {
+                console.error('Ошибка:', error);
+                document.getElementById('resultContainer').innerHTML = 'Ошибка: ' + error.message;
+            });
+        });
+    </script>
+</body>
+</html>
